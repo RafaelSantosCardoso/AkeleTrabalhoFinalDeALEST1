@@ -1,15 +1,19 @@
+import java.util.LinkedList;
 
 public class App {
     public static void main(String[] args) {
-        BinarySearchTreeOfInteger b = new BinarySearchTreeOfInteger();
-        b.add(15);
-        b.add(23);
-        b.add(9);
-        b.add(11);
-        b.add(2);
-        b.add(20);
-        b.add(38);
-        b.remove(11);
-        System.out.println(b.positionsCentral().toString());
+        RedBlackTree tree = new RedBlackTree();
+        tree.add(15);
+        tree.add(23);
+        tree.add(9);
+        tree.add(11);
+        tree.add(2);
+        tree.add(20);
+        tree.add(38);
+        LinkedListOfInteger list = tree.positionsCentral();      
+        System.out.println(list.toString());
+        RedBlackTree tree2 = tree.clone();
+        list = tree2.positionsCentral();
+        System.out.println(list.toString());
     }   
 }
