@@ -40,7 +40,7 @@ public class RedBlackTree {
     // Atributos        
     private int count; //contador do numero de nodos
     private Node root; //referencia para o nodo raiz
-    private final static Node nill = new Node();
+    private final static Node nill = new Node(); //Nodo null
 
     
 
@@ -88,9 +88,6 @@ public class RedBlackTree {
     }
 
     
-    
-    
-    
     public LinkedListOfInteger positionsPre() {
         LinkedListOfInteger list = new LinkedListOfInteger();
         positionsPreAux(root, list);
@@ -130,115 +127,120 @@ public class RedBlackTree {
         }
     }
 
-    
-    /**
-     * Adiciona o elemento passado por parametro na arvore. 
-     * @param element elemento a ser adicionado na arvore.
-     */
+   
     public void add(Integer element) {
         if(isEmpty()) {
             root = new Node(element);
             root.setBlack();
         }else{
-            Node n = add(root, element, null);
+            add(root, element, null);
         }
         count++;
-        recalculate();
+        recalculate(root, false);
     }
-    private Node add(Node n, Integer e, Node father) {
+    private void add(Node n, Integer e, Node father) {
         if (n == nill) {
             Node aux = new Node(e);
             aux.father = father;
             n = aux;
         }
         if (n.element < e) {
-            n.right = add(n.right, e, n);
+            add(n.right, e, n);
         } else {
-            n.left = add(n.left, e, n);
+            add(n.left, e, n);
         }
-        return n;
-    }     
-    private void recalculate(){
-        recalculate(root, false);
-    }
+    }    
+
 
     private void recalculate(Node n, boolean verify){
+        if(n == nill) return;
+        
+        //case 0 - root always black
+        if(root.isRed()) {
+            root.setBlack();
+        }
+        
+        //set uncle
         Node uncle = null;
-
-        if(n== nill) return;
-
         if (n.father.father.left == n.father) {
             uncle = n.father.father.right;
         }else{
             uncle = n.father.father.left;
         }
+        
+        
+        //case 1 - uncle red  
         if (uncle.isRed()) {
-            chengeColors(n, uncle); 
+            chengeColors(n, uncle, n.father.father); 
             verify = true;      
         }
 
-
+        //case 2 - uncle black => triangle
+        if(!uncle.isRed() && uncle == n.father.father.left && n == n.father.left && !verify){
+            rotateRigth(n);
+        }else if (!uncle.isRed() && uncle == n.father.father.right && n == n.father.right && !verify) {
+            rotateLeft(n);
+        }
         
+        //case 3 - uncle black => line
+        if(!uncle.isRed() && uncle == n.father.father.left && n == n.father.right && !verify){
+            rotateLeft(n.father);
+            chengeColors(n, uncle, n.father.left);
+        }else if (!uncle.isRed() && uncle == n.father.father.right && n == n.father.left && !verify) {
+            rotateRigth(n.father);
+            chengeColors(n, uncle, n.father.right);
+            
+        }
 
 
         if (verify) {
             recalculate(root, false);
         }else{
-            recalculate(n.left, verify);
-            recalculate(n.right, verify);
+            recalculate(n.left, false);
+            recalculate(n.right, false);
         }
         
     }
 
-    private void chengeColors(Node n,  Node uncle){
+    private void chengeColors(Node n,  Node uncle, Node grandparent){
         n.father.setBlack();
         uncle.setBlack();
-        n.father.father.setRed();
+        grandparent.setRed();
     }
 
 
-    //if n.father.father.left true
+    //n become parent
     private void rotateLeft(Node n){
-        Node auxBrother = n.father.left;
-        n.father.left = n.father.father;
-        auxBrother.father = n.father.left;
-        n.father.left.right = auxBrother;
-        n.father.left.father = n.father;
+        n.father.father.left = n;
+        Node aux = n.left;
+        n.left = n.father;
+        n.father = n.father.father;
+        n.left.right = aux;
+        n.left.father = n;
+
+        if (n.right == root) {
+            root = n;
+            root.father = nill;
+        }        
     }
 
-    //if n.father.father.right true
+    //n become parent
     private void rotateRigth(Node n){
-        Node auxBrother = n.right;
-        n.right = n.father;
-        auxBrother.father = n.right;
-        n.right.left = auxBrother;
-        n.right.father = n;
+            n.father.father.right = n;
+            Node aux = n.right;
+            n.right = n.father;
+            n.father = n.father.father;
+            n.right.left = aux;
+            n.right.father = n;
+
+            if (n.right == root) {
+                root = n;
+                root.father = nill;
+            }
     }
 
 
-
-    /*
-    1 z=root - black
-    2 z.uncle = RED - recolor - father and uncle tunr into black end grnadparent become red
-    3 z.uncle = black (triangle) - rotate z.parent z is red and uncle is black
-    4 z.uncle = black(line) rotate z.grnadparent and recolor rotate to rigth, father become red and those childs red
-     
-    */
-    
-    
-    
-    ////////////////////////////////////////////////////
-    // Implemente os métodos abaixo
-    ////////////////////////////////////////////////////
-    
-    
-    
-    /**
-     * Retorna a altura da arvore. Deve chamar um metodo auxiliar recursivo.
-     * @return altura da arvore
-     */    
     public int height() {        
-        //Implemente este metodo (de preferencia de forma recursiva)
         return height(root, 0); 
     }
     private int height(Node n, int num) {        
@@ -252,15 +254,11 @@ public class RedBlackTree {
         return 0;
     }
     private int heightReturn(Node n) {        
-        //Implemente este metodo (de preferencia de forma recursiva)
+        
         return height(root, 0); 
     }
     
-    /** 
-     * Retorna uma lista com todos os elementos da arvore na ordem de 
-     * caminhamento em largura. 
-     * @return LinkedListOfInteger lista com os elementos da arvore
-     */     
+       
     public LinkedListOfInteger positionsWidth() {
         Queue<Node> fila = new Queue<>();
         LinkedListOfInteger res = new LinkedListOfInteger();
@@ -288,7 +286,7 @@ public class RedBlackTree {
         return tree;
     }
     private void clone(Node n, RedBlackTree tree){
-        if(n == null)
+        if(n == nill)
             return;
 
         tree.add(n.element);
