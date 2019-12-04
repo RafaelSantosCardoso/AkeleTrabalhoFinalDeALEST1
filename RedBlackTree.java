@@ -143,11 +143,13 @@ public class RedBlackTree {
             Node aux = new Node(e);
             aux.father = father;
             n = aux;
-        }
-        if (n.element < e) {
-            add(n.right, e, n);
-        } else {
-            add(n.left, e, n);
+        }else{
+
+            if (n.element < e) {
+                add(n.right, e, n);
+            } else {
+                add(n.left, e, n);
+            }
         }
     }    
 
@@ -160,39 +162,42 @@ public class RedBlackTree {
             root.setBlack();
         }
         
-        //set uncle
-        Node uncle = null;
-        if (n.father.father.left == n.father) {
-            uncle = n.father.father.right;
-        }else{
-            uncle = n.father.father.left;
-        }
-        
-        
-        //case 1 - uncle red  
-        if (uncle.isRed()) {
-            chengeColors(n, uncle, n.father.father); 
-            verify = true;      
-        }
-
-        //case 2 - uncle black => triangle
-        if(!uncle.isRed() && uncle == n.father.father.left && n == n.father.left && !verify){
-            rotateRigth(n);
-        }else if (!uncle.isRed() && uncle == n.father.father.right && n == n.father.right && !verify) {
-            rotateLeft(n);
-        }
-        
-        //case 3 - uncle black => line
-        if(!uncle.isRed() && uncle == n.father.father.left && n == n.father.right && !verify){
-            rotateLeft(n.father);
-            chengeColors(n, uncle, n.father.left);
-        }else if (!uncle.isRed() && uncle == n.father.father.right && n == n.father.left && !verify) {
-            rotateRigth(n.father);
-            chengeColors(n, uncle, n.father.right);
+        if (n.father != null) {
+            //set uncle
+            Node uncle = null;
             
-        }
-
-
+            if (n.father.father.left == n.father) {
+                uncle = n.father.father.right;
+            }else{
+                uncle = n.father.father.left;
+            }
+            
+            
+            //case 1 - uncle red  
+            if (uncle.isRed()) {
+                chengeColors(n, uncle, n.father.father); 
+                verify = true;      
+            }
+            
+            //case 2 - uncle black => triangle
+            if(!uncle.isRed() && uncle == n.father.father.left && n == n.father.left && !verify){
+                rotateRigth(n);
+            }else if (!uncle.isRed() && uncle == n.father.father.right && n == n.father.right && !verify) {
+                rotateLeft(n);
+            }
+            
+            //case 3 - uncle black => line
+            if(!uncle.isRed() && uncle == n.father.father.left && n == n.father.right && !verify){
+                rotateLeft(n.father);
+                chengeColors(n, uncle, n.father.left);
+            }else if (!uncle.isRed() && uncle == n.father.father.right && n == n.father.left && !verify) {
+                rotateRigth(n.father);
+                chengeColors(n, uncle, n.father.right);
+                
+            }
+            }
+            
+            
         if (verify) {
             recalculate(root, false);
         }else{
@@ -201,12 +206,12 @@ public class RedBlackTree {
         }
         
     }
-
-    private void chengeColors(Node n,  Node uncle, Node grandparent){
-        n.father.setBlack();
-        uncle.setBlack();
-        grandparent.setRed();
-    }
+        
+        private void chengeColors(Node n,  Node uncle, Node grandparent){
+            n.father.setBlack();
+            uncle.setBlack();
+            grandparent.setRed();
+        }
 
 
     //n become parent

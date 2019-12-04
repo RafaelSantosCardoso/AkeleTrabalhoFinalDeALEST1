@@ -261,10 +261,10 @@ public class LinkedListOfInteger {
     public String toString() {
         StringBuilder s = new StringBuilder();
 
-        Node aux = head;
+        Node aux = head.next;
 
-        while (aux != null) {
-            s.append(aux.element.toString());
+        while (aux != tail) {
+            s.append(aux.element);
             s.append("\n");
             aux = aux.next;
         }
